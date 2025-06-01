@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "743170610984",
+    "project_id": "aquadylife-2c254",
+    "storage_bucket": "aquadylife-2c254.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743170610984:android:8c04833297438fd3f7621d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuRrDCZJyMz5_k1Dyrwpp4Mgv1p60PNDU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
