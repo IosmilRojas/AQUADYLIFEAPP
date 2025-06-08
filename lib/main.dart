@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+// Quita el import de firebase_auth si no lo usas para autenticación directa aquí
+// import 'package:firebase_auth/firebase_auth.dart'; // <--- ELIMINAR ESTA LÍNEA
+
+// Asegúrate de que estas rutas sean correctas para tus archivos de pantalla.
 import 'pantallas/bebidas_page.dart';
 import 'pantallas/frutossecos_page.dart';
 import 'pantallas/delivery_page.dart';
-import 'pantallas/login_screen.dart';
+import 'pantallas/login_screen.dart'; // Importa la pantalla de login
+import 'pantallas/perfil_page.dart'; // Importa la pantalla de perfil
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,45 +29,126 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int _currentIndex = 0;
-  bool _isLoggedIn = false;
+  Map<String, dynamic>?
+  _loggedInUserData; // Almacenará los datos del usuario logueado
 
-  void _onLoginSuccess() {
+  // Este callback se llama desde LoginScreen cuando el login es exitoso
+  void _onLoginSuccess(Map<String, dynamic> userData) {
     setState(() {
-      _isLoggedIn = true;
+      _loggedInUserData = userData; // Guarda los datos del usuario
     });
+  }
+
+  // Método para cerrar sesión y limpiar los datos del usuario
+  void _logout() async {
+    setState(() {
+      _loggedInUserData = null; // Limpia los datos del usuario
+      _currentIndex = 0; // Reinicia a la primera pestaña
+    });
+    // Si tuvieras persistencia de login (ej. SharedPreferences), la borrarías aquí.
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isLoggedIn = _loggedInUserData != null;
+
     return MaterialApp(
-      title: 'Gestión de Negocios',
+      title: 'Gestión de Negocios AQUADYLIFE',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        // Tema principal de la aplicación (sin cambios, asumiendo que ya funciona bien)
         primarySwatch: Colors.indigo,
-        canvasColor: Colors.white,
-        scaffoldBackgroundColor: Colors.grey[100],
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
+        colorScheme: ColorScheme.light().copyWith(
+          primary: const Color.fromARGB(255, 53, 207, 227),
+          onPrimary: Colors.white,
+          secondary: const Color.fromARGB(255, 53, 207, 227),
+          onSecondary: Colors.black,
+          surface: Colors.white,
+          onSurface: Colors.black87,
+          background: Colors.grey[50],
+          onBackground: Colors.black87,
+          error: Colors.red[700],
+          onError: Colors.white,
+        ),
+        scaffoldBackgroundColor: Colors.grey[50],
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color.fromARGB(255, 53, 207, 227),
+          foregroundColor: Colors.white,
+          elevation: 4.0,
+          titleTextStyle: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: Colors.white,
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 16.0,
+          ),
+          hintStyle: TextStyle(color: Colors.grey[500]),
+          prefixIconColor: const Color.fromARGB(255, 53, 207, 227),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 53, 207, 227),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            elevation: 5,
+            textStyle: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: const Color.fromARGB(255, 53, 207, 227),
+            textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        cardTheme: CardTheme(
+          elevation: 3.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          margin: const EdgeInsets.all(8.0),
         ),
       ),
       home:
-          _isLoggedIn
+          isLoggedIn
               ? Scaffold(
                 appBar: AppBar(
                   title: const Text('AQUADYLIFE'),
-                  backgroundColor: Colors.indigo,
+                  centerTitle: true,
                   actions: [
                     IconButton(
-                      icon: const Icon(Icons.logout),
-                      tooltip: 'Salir',
+                      icon: const Icon(
+                        Icons.exit_to_app_rounded,
+                        color: Colors.white,
+                      ),
+                      tooltip: 'Cerrar sesión',
                       onPressed: () async {
                         final confirm = await showDialog<bool>(
                           context: context,
                           builder:
                               (context) => AlertDialog(
-                                title: const Text('Cerrar sesión'),
+                                title: const Text('¿Cerrar sesión?'),
                                 content: const Text(
-                                  '¿Estás seguro que deseas salir de la sesión?',
+                                  'Estás a punto de salir de tu cuenta. ¿Estás seguro?',
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
                                 ),
                                 actions: [
                                   TextButton(
@@ -71,115 +157,297 @@ class _MyAppState extends State<MyApp> {
                                         () => Navigator.of(context).pop(false),
                                   ),
                                   ElevatedButton(
-                                    child: const Text('Salir'),
-                                    onPressed:
-                                        () => Navigator.of(context).pop(true),
+                                    child: const Text('Sí, salir'),
+                                    onPressed: () {
+                                      _logout(); // Llama a tu función de cerrar sesión
+                                      Navigator.of(
+                                        context,
+                                      ).pop(true); // Cierra el diálogo
+                                    },
                                   ),
                                 ],
                               ),
                         );
-                        if (confirm == true) {
-                          setState(() {
-                            _isLoggedIn = false;
-                            _currentIndex = 0;
-                          });
-                        }
+                        // La lógica de _logout ya maneja el setState para isLoggedIn
                       },
                     ),
+                    const SizedBox(width: 8),
                   ],
                 ),
                 drawer: Drawer(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      const DrawerHeader(
-                        decoration: BoxDecoration(color: Colors.indigo),
-                        child: Text(
-                          'Menú',
-                          style: TextStyle(color: Colors.white, fontSize: 24),
-                        ),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.person),
-                        title: const Text('Perfil'),
-                        onTap: () {
-                          // TODO: Navegar a la pantalla de perfil
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Perfil (en desarrollo)'),
+                  child: Builder(
+                    builder: (BuildContext drawerContext) {
+                      // Accedemos a los datos del usuario logueado desde el estado de MyApp
+                      String userName =
+                          _loggedInUserData?['nombre'] ?? 'Invitado';
+                      String userEmail =
+                          _loggedInUserData?['correo'] ?? 'No logueado';
+
+                      return ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
+                          DrawerHeader(
+                            margin: EdgeInsets.zero,
+                            padding: const EdgeInsets.fromLTRB(
+                              16.0,
+                              16.0,
+                              16.0,
+                              8.0,
                             ),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.history),
-                        title: const Text('Historial de Compras'),
-                        onTap: () {
-                          // TODO: Navegar a historial de compras
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Historial de Compras (en desarrollo)',
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color.fromARGB(255, 53, 207, 227),
+                                  Color.fromARGB(255, 80, 220, 240),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
                             ),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.shopping_bag),
-                        title: const Text('Productos'),
-                        onTap: () {
-                          // TODO: Navegar a productos
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Productos (en desarrollo)'),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const CircleAvatar(
+                                  radius: 36,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(
+                                    Icons.person_rounded,
+                                    size: 45,
+                                    color: Color.fromARGB(255, 53, 207, 227),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  userName, // Mostrar el nombre del usuario logueado
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  userEmail, // Mostrar el correo del usuario logueado
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.contact_mail),
-                        title: const Text('Contáctanos'),
-                        onTap: () {
-                          // TODO: Navegar a contáctanos
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Contáctanos (en desarrollo)'),
+                          ),
+                          const SizedBox(height: 8),
+
+                          _buildDrawerItem(
+                            icon: Icons.account_circle,
+                            title: 'Mi Perfil',
+                            onTap: () {
+                              Navigator.pop(drawerContext); // Cierra el Drawer
+                              // Aseguramos que los datos no son nulos antes de pasar
+                              if (_loggedInUserData != null) {
+                                Navigator.push(
+                                  drawerContext,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => PerfilPage(
+                                          // Pasamos todos los datos del usuario logueado
+                                          userEmail:
+                                              _loggedInUserData!['correo'],
+                                          userName:
+                                              _loggedInUserData!['nombre'],
+                                          userPhone:
+                                              _loggedInUserData!['celular'],
+                                          // Pasamos el ID del documento para futuras actualizaciones
+                                          userId: _loggedInUserData!['uid'],
+                                          // Si tienes 'apellidos' o 'direccion' en tu Firestore, pásalos también
+                                          userLastName:
+                                              _loggedInUserData!['apellidos'], // Suponiendo que tienes un campo 'apellidos'
+                                          userAddress:
+                                              _loggedInUserData!['direccion'] ??
+                                              'Dirección no especificada', // Suponiendo un campo 'direccion'
+                                        ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(
+                                  drawerContext,
+                                ).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'No hay datos de usuario para mostrar.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          _buildDrawerItem(
+                            icon: Icons.history_rounded,
+                            title: 'Historial de Pedidos',
+                            onTap: () {
+                              Navigator.pop(drawerContext);
+                              ScaffoldMessenger.of(drawerContext).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Historial de Pedidos (en desarrollo)',
+                                  ),
+                                  backgroundColor: Color.fromARGB(
+                                    255,
+                                    53,
+                                    207,
+                                    227,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            icon: Icons.shopping_bag_rounded,
+                            title: 'Nuestros Productos',
+                            onTap: () {
+                              Navigator.pop(drawerContext);
+                              ScaffoldMessenger.of(drawerContext).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Nuestros Productos (en desarrollo)',
+                                  ),
+                                  backgroundColor: Color.fromARGB(
+                                    255,
+                                    53,
+                                    207,
+                                    227,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildDrawerItem(
+                            icon: Icons.contact_support_rounded,
+                            title: 'Soporte y Contacto',
+                            onTap: () {
+                              Navigator.pop(drawerContext);
+                              ScaffoldMessenger.of(drawerContext).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Soporte y Contacto (en desarrollo)',
+                                  ),
+                                  backgroundColor: Color.fromARGB(
+                                    255,
+                                    53,
+                                    207,
+                                    227,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          const Divider(
+                            height: 30,
+                            thickness: 1,
+                            indent: 20,
+                            endIndent: 20,
+                            color: Colors.grey,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
                             ),
-                          );
-                        },
+                            child: Text(
+                              'Versión 1.0.0',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                body: _getBody(),
+                bottomNavigationBar: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    border: Border(
+                      top: BorderSide(color: Colors.grey[300]!, width: 0.5),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        spreadRadius: 0,
+                        blurRadius: 10,
+                        offset: const Offset(0, -3),
+                      ),
+                    ],
+                  ),
+                  child: BottomNavigationBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    currentIndex: _currentIndex,
+                    selectedItemColor: Theme.of(context).colorScheme.primary,
+                    unselectedItemColor: Colors.grey[600],
+                    type: BottomNavigationBarType.fixed,
+                    onTap: (index) => setState(() => _currentIndex = index),
+                    items: const [
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.local_drink_outlined),
+                        activeIcon: Icon(Icons.local_drink_rounded),
+                        label: 'Bebidas',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.nature_outlined),
+                        activeIcon: Icon(Icons.nature_rounded),
+                        label: 'Frutos Secos',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.delivery_dining_outlined),
+                        activeIcon: Icon(Icons.delivery_dining_rounded),
+                        label: 'Delivery',
                       ),
                     ],
                   ),
                 ),
-                body: _getBody(),
-                bottomNavigationBar: BottomNavigationBar(
-                  backgroundColor: Colors.white,
-                  currentIndex: _currentIndex,
-                  selectedItemColor: Colors.indigo,
-                  unselectedItemColor: Colors.grey,
-                  onTap: (index) => setState(() => _currentIndex = index),
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.local_drink), // Bebidas
-                      label: 'Bebidas',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.spa), // Frutos Secos
-                      label: 'Frutos Secos',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.delivery_dining), // Delivery
-                      label: 'delivery',
-                    ),
-                  ],
-                ),
               )
-              : LoginScreen(onLoginSuccess: _onLoginSuccess),
+              : LoginScreen(
+                onLoginSuccess: _onLoginSuccess,
+              ), // Pasar el callback actualizado
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+      color: Colors.transparent,
+      child: ListTile(
+        leading: Icon(icon, color: const Color.fromARGB(255, 53, 207, 227)),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        hoverColor: const Color.fromARGB(255, 53, 207, 227).withOpacity(0.1),
+        selectedTileColor: const Color.fromARGB(
+          255,
+          53,
+          207,
+          227,
+        ).withOpacity(0.05),
+      ),
     );
   }
 

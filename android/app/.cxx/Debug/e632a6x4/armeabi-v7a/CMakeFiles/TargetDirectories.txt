@@ -1,0 +1,2 @@
+/Users/estefani/AQUADYLIFEAPP/android/app/.cxx/Debug/e632a6x4/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/estefani/AQUADYLIFEAPP/android/app/.cxx/Debug/e632a6x4/armeabi-v7a/CMakeFiles/rebuild_cache.dir

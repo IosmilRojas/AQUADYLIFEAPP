@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BebidasPage extends StatefulWidget {
+  const BebidasPage({Key? key}) : super(key: key);
+
   @override
   _BebidasPageState createState() => _BebidasPageState();
 }
@@ -12,6 +14,28 @@ class _BebidasPageState extends State<BebidasPage> {
   );
 
   final List<Map<String, dynamic>> _carrito = [];
+
+  String _searchTerm = ''; // Término de búsqueda
+  bool _isSearching =
+      false; // Para controlar si la barra de búsqueda está activa
+  final TextEditingController _searchController =
+      TextEditingController(); // Controlador para el TextField de búsqueda
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchTerm = _searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   void _agregarAlCarrito(Map<String, dynamic> producto) {
     setState(() {
@@ -39,6 +63,7 @@ class _BebidasPageState extends State<BebidasPage> {
           title: const Text('Agregar Bebida'),
           content: SingleChildScrollView(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: _nombreController,
@@ -96,6 +121,7 @@ class _BebidasPageState extends State<BebidasPage> {
                   'precio': double.tryParse(_precioController.text) ?? 0,
                   'codigo': _codigoController.text,
                   'valoracion': 0,
+                  'category': 'General',
                 });
                 Navigator.of(context).pop();
               },
@@ -122,8 +148,77 @@ class _BebidasPageState extends State<BebidasPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bebidas'),
+        title:
+            _isSearching
+                ? Container(
+                  // Envolvemos el TextField en un Container para mejor control del diseño
+                  height: 40, // Altura fija para el TextField
+                  decoration: BoxDecoration(
+                    color:
+                        Colors.white, // Fondo blanco para que el texto se vea
+                    borderRadius: BorderRadius.circular(
+                      20,
+                    ), // Bordes redondeados
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Buscar bebidas...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[600],
+                      ), // Color de hint más visible
+                      border: InputBorder.none, // Quitamos el borde por defecto
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ), // Relleno para el texto
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Colors.grey[600],
+                      ), // Icono de lupa dentro del campo
+                      suffixIcon:
+                          _searchTerm
+                                  .isNotEmpty // Solo muestra la 'x' si hay texto
+                              ? IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: Colors.grey[600],
+                                ),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchTerm = '';
+                                  });
+                                },
+                              )
+                              : null,
+                    ),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                    ), // Color de texto negro
+                    cursorColor:
+                        Theme.of(
+                          context,
+                        ).colorScheme.primary, // Color del cursor
+                    autofocus: true,
+                  ),
+                )
+                : const Text('Bebidas'),
         actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+                if (!_isSearching) {
+                  _searchController.clear();
+                  _searchTerm = '';
+                }
+              });
+            },
+            tooltip: _isSearching ? 'Cerrar búsqueda' : 'Buscar',
+          ),
           IconButton(
             icon: Stack(
               children: [
@@ -153,20 +248,48 @@ class _BebidasPageState extends State<BebidasPage> {
                       title: const Text('Carrito de Compras'),
                       content: SizedBox(
                         width: double.maxFinite,
-                        child: ListView(
-                          shrinkWrap: true,
-                          children:
-                              _carrito
-                                  .map(
-                                    (producto) => ListTile(
-                                      title: Text(producto['nombre'] ?? ''),
-                                      subtitle: Text(
-                                        'S/ ${producto['precio']?.toStringAsFixed(2) ?? '0.00'}',
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                        ),
+                        child:
+                            _carrito.isEmpty
+                                ? const Center(
+                                  child: Text('El carrito está vacío.'),
+                                )
+                                : ListView(
+                                  shrinkWrap: true,
+                                  children:
+                                      _carrito
+                                          .asMap()
+                                          .entries
+                                          .map(
+                                            (entry) => ListTile(
+                                              title: Text(
+                                                entry.value['nombre'] ?? '',
+                                              ),
+                                              subtitle: Text(
+                                                'S/ ${entry.value['precio']?.toStringAsFixed(2) ?? '0.00'}',
+                                              ),
+                                              trailing: IconButton(
+                                                icon: const Icon(
+                                                  Icons.remove_circle,
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _carrito.removeAt(
+                                                      entry.key,
+                                                    );
+                                                  });
+                                                  if (_carrito.isEmpty) {
+                                                    Navigator.of(context).pop();
+                                                  } else {
+                                                    (context as Element)
+                                                        .markNeedsBuild();
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                ),
                       ),
                       actions: [
                         TextButton(
@@ -201,24 +324,51 @@ class _BebidasPageState extends State<BebidasPage> {
       body: StreamBuilder<QuerySnapshot>(
         stream: _bebidas.snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final docs = snapshot.data!.docs;
-          if (docs.isEmpty) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(child: Text('No hay bebidas registradas.'));
           }
+
+          final allDocs = snapshot.data!.docs;
+          final filteredDocs =
+              allDocs.where((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                final nombre = (data['nombre'] as String? ?? '').toLowerCase();
+                final descripcion =
+                    (data['descripcion'] as String? ?? '').toLowerCase();
+                final searchTermLower = _searchTerm.toLowerCase();
+
+                return _searchTerm.isEmpty ||
+                    nombre.contains(searchTermLower) ||
+                    descripcion.contains(searchTermLower);
+              }).toList();
+
+          if (filteredDocs.isEmpty && _searchTerm.isNotEmpty) {
+            return Center(
+              child: Text(
+                'No se encontraron bebidas que coincidan con "$_searchTerm".',
+              ),
+            );
+          } else if (filteredDocs.isEmpty) {
+            return const Center(child: Text('No hay bebidas registradas.'));
+          }
+
           return GridView.builder(
             padding: const EdgeInsets.all(16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
-              childAspectRatio: 0.7, // Más alto para evitar overflow
+              childAspectRatio: 0.7,
             ),
-            itemCount: docs.length,
+            itemCount: filteredDocs.length,
             itemBuilder: (context, index) {
-              final doc = docs[index];
+              final doc = filteredDocs[index];
               final data = doc.data() as Map<String, dynamic>;
               final urlImagenOriginal = data['imagen'] as String? ?? '';
               final urlImagenDirecta = convertirEnlaceDriveADirecto(
@@ -248,7 +398,7 @@ class _BebidasPageState extends State<BebidasPage> {
                               showDialog(
                                 context: context,
                                 builder:
-                                    (_) => Dialog(
+                                    (context) => Dialog(
                                       backgroundColor: Colors.black,
                                       insetPadding: const EdgeInsets.all(10),
                                       child: InteractiveViewer(
@@ -328,22 +478,19 @@ class _BebidasPageState extends State<BebidasPage> {
                               ),
                             Wrap(
                               alignment: WrapAlignment.center,
-                              spacing:
-                                  2, // Espaciado positivo para que no se encimen
+                              spacing: 2,
                               children: List.generate(5, (starIndex) {
                                 final isFilled = starIndex < valoracion.round();
                                 return GestureDetector(
                                   onTap: () async {
-                                    // Actualiza la valoración en Firestore
                                     await doc.reference.update({
                                       'valoracion': starIndex + 1,
                                     });
-                                    setState(() {}); // Refresca la UI
                                   },
                                   child: Icon(
                                     isFilled ? Icons.star : Icons.star_border,
                                     color: Colors.amber,
-                                    size: 16, // Tamaño más grande y legible
+                                    size: 16,
                                   ),
                                 );
                               }),
