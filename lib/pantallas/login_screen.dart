@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback onLoginSuccess;
+  final Function({required String nombre, required String correo})
+  onLoginSuccess;
 
   const LoginScreen({Key? key, required this.onLoginSuccess}) : super(key: key);
 
@@ -14,8 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
 
-  final CollectionReference _usuariosRef =
-      FirebaseFirestore.instance.collection('USUARIOS');
+  final CollectionReference _usuariosRef = FirebaseFirestore.instance
+      .collection('USUARIOS');
 
   void _showRegisterDialog() {
     final TextEditingController _nombreController = TextEditingController();
@@ -23,7 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final TextEditingController _correoController = TextEditingController();
     final TextEditingController _celularController = TextEditingController();
     final TextEditingController _passRegController = TextEditingController();
-    final TextEditingController _confirmPassController = TextEditingController();
+    final TextEditingController _confirmPassController =
+        TextEditingController();
 
     showDialog(
       context: context,
@@ -58,7 +60,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 TextField(
                   controller: _confirmPassController,
-                  decoration: const InputDecoration(labelText: 'Confirmar Contraseña'),
+                  decoration: const InputDecoration(
+                    labelText: 'Confirmar Contraseña',
+                  ),
                   obscureText: true,
                 ),
               ],
@@ -84,30 +88,39 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
                 if (_passRegController.text != _confirmPassController.text) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Las contraseñas no coinciden')),
+                    const SnackBar(
+                      content: Text('Las contraseñas no coinciden'),
+                    ),
                   );
                   return;
                 }
                 // Verifica si el correo ya existe en Firestore
-                final query = await _usuariosRef
-                    .where('correo', isEqualTo: _correoController.text)
-                    .get();
+                final query =
+                    await _usuariosRef
+                        .where('correo', isEqualTo: _correoController.text)
+                        .get();
                 if (query.docs.isNotEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('El correo ya está registrado')),
+                    const SnackBar(
+                      content: Text('El correo ya está registrado'),
+                    ),
                   );
                   return;
                 }
                 // Guarda en Firestore
-                await _usuariosRef.add({
+                final docRef = await _usuariosRef.add({
                   'nombre': _nombreController.text,
                   'apellidos': _apellidosController.text,
                   'correo': _correoController.text,
                   'celular': _celularController.text,
                   'password': _passRegController.text,
                 });
+                // Guarda el uid generado dentro del documento
+                await docRef.update({'uid': docRef.id});
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Usuario registrado correctamente')),
+                  const SnackBar(
+                    content: Text('Usuario registrado correctamente'),
+                  ),
                 );
                 Navigator.of(context).pop();
               },
@@ -124,13 +137,16 @@ class _LoginScreenState extends State<LoginScreen> {
     final pass = _passController.text;
 
     // Busca el usuario en Firestore
-    final query = await _usuariosRef
-        .where('correo', isEqualTo: correo)
-        .where('password', isEqualTo: pass)
-        .get();
+    final query =
+        await _usuariosRef
+            .where('correo', isEqualTo: correo)
+            .where('password', isEqualTo: pass)
+            .get();
 
     if (query.docs.isNotEmpty) {
-      widget.onLoginSuccess();
+      final userData = query.docs.first.data() as Map<String, dynamic>;
+      final nombre = userData['nombre'] ?? '';
+      widget.onLoginSuccess(nombre: nombre, correo: correo);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuario o contraseña incorrectos')),

@@ -5,6 +5,7 @@ import 'pantallas/frutossecos_page.dart';
 import 'pantallas/delivery_page.dart';
 import 'pantallas/login_screen.dart';
 import 'pantallas/contactanos.dart';
+import 'pantallas/perfil_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +28,31 @@ class _MyAppState extends State<MyApp> {
   int _currentIndex = 0;
   bool _isLoggedIn = false;
 
-  void _onLoginSuccess() {
+  String? _nombreUsuario;
+  String? _correoUsuario;
+
+  Map<String, dynamic>? _loggedInUserData;
+
+  void _onLoginSuccess({
+    required String correo,
+    required String nombre,
+    String? celular,
+    String? uid,
+    String? apellidos,
+    String? direccion,
+  }) {
     setState(() {
       _isLoggedIn = true;
+      _nombreUsuario = nombre;
+      _correoUsuario = correo;
+      _loggedInUserData = {
+        'correo': correo,
+        'nombre': nombre,
+        'celular': celular ?? '',
+        'uid': uid ?? '',
+        'apellidos': apellidos ?? '',
+        'direccion': direccion ?? '',
+      };
     });
   }
 
@@ -88,6 +111,9 @@ class _MyAppState extends State<MyApp> {
                                 setState(() {
                                   _isLoggedIn = false;
                                   _currentIndex = 0;
+                                  _nombreUsuario = null;
+                                  _correoUsuario = null;
+                                  _loggedInUserData = null;
                                 });
                               }
                             },
@@ -113,11 +139,28 @@ class _MyAppState extends State<MyApp> {
                               title: const Text('Perfil'),
                               onTap: () {
                                 Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Perfil (en desarrollo)'),
-                                  ),
-                                );
+                                if (_loggedInUserData != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => PerfilPage(
+                                            userEmail:
+                                                _loggedInUserData!['correo'],
+                                            userName:
+                                                _loggedInUserData!['nombre'],
+                                            userPhone:
+                                                _loggedInUserData!['celular'],
+                                            userId: _loggedInUserData!['uid'],
+                                            userLastName:
+                                                _loggedInUserData!['apellidos'],
+                                            userAddress:
+                                                _loggedInUserData!['direccion'] ??
+                                                'Dirección no especificada',
+                                          ),
+                                    ),
+                                  );
+                                }
                               },
                             ),
                             ListTile(

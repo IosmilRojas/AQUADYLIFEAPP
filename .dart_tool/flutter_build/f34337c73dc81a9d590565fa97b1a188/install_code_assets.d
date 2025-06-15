@@ -1,0 +1,1 @@
+ D:\\avance\\aquadylife\\aquadylife\\.dart_tool\\flutter_build\\f34337c73dc81a9d590565fa97b1a188\\native_assets.json: 

@@ -104,6 +104,24 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "firebase_auth",
+      "rootUri": "file:///C:/Users/ROJAS/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_auth-4.16.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_auth_platform_interface",
+      "rootUri": "file:///C:/Users/ROJAS/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_auth_platform_interface-7.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "firebase_auth_web",
+      "rootUri": "file:///C:/Users/ROJAS/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_auth_web-5.8.13",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "firebase_core",
       "rootUri": "file:///C:/Users/ROJAS/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_core-2.32.0",
       "packageUri": "lib/",
@@ -314,6 +332,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "js",
+      "rootUri": "file:///C:/Users/ROJAS/AppData/Local/Pub/Cache/hosted/pub.dev/js-0.6.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "leak_tracker",
       "rootUri": "file:///C:/Users/ROJAS/AppData/Local/Pub/Cache/hosted/pub.dev/leak_tracker-10.0.8",
       "packageUri": "lib/",
@@ -470,7 +494,7 @@
       "languageVersion": "3.7"
     }
   ],
-  "generated": "2025-06-01T02:23:03.578282Z",
+  "generated": "2025-06-15T01:50:18.294587Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///C:/dev/flutter_windows_3.29.3-stable/flutter",
