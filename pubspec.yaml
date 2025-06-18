@@ -2,28 +2,36 @@ name: AQUADYLIFE
 description: "Aplicación Flutter para la gestión de productos, empleados y proveedores."
 
 publish_to: 'none'
-version: 0.1.0
+version: 0.1.0+1 # Puedes ajustar la versión si deseas
 
 environment:
-  sdk: ^3.7.2
+  sdk: '>=3.0.0 <4.0.0' # Mejor usar un rango más general si tu SDK es 3.x.x
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   image_picker: ^0.8.7+4
   firebase_core: ^2.27.0
   cloud_firestore: ^4.15.5
   firebase_database: ^10.4.9
-  # Si usas google_fonts, asegúrate de que también está aquí
-  # google_fonts: ^6.2.1 # Descomenta y ajusta la versión si la usas
+  intl: ^0.20.2 # <--- VERSIÓN DE INTL ACTUALIZADA
+  cupertino_icons: ^1.0.2
+  google_fonts: ^6.2.1
+  url_launcher: ^6.2.6
+  google_maps_flutter: ^2.6.1 # <--- AGREGADO
+  geolocator: ^11.0.0       # <--- AGREGADO
+  http: ^1.2.1 # Agregado ya que tu ContactanosPage lo usa
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^3.0.0 # Ajustado a una versión compatible con el SDK
+                      # Si tienes ^5.0.0 y te da problemas, baja a ^3.0.0 o ^4.0.0
 
 flutter:
   uses-material-design: true
   assets:
     - assets/logo.png
-    - assets/drawer_background.png # ¡Añade esta línea!
+    - assets/drawer_background.png
