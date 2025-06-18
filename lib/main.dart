@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'pantallas/bebidas_page.dart';
-import 'pantallas/frutossecos_page.dart';
+import 'pantallas/menu_principal.dart';
 import 'pantallas/delivery_page.dart';
 import 'pantallas/login_screen.dart';
 import 'pantallas/contactanos.dart';
 import 'pantallas/perfil_page.dart';
+import 'pantallas/ventas_page.dart'; // <--- CORREGIDO EL NOMBRE DEL ARCHIVO
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -168,11 +169,10 @@ class _MyAppState extends State<MyApp> {
                               title: const Text('Historial de Compras'),
                               onTap: () {
                                 Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Historial de Compras (en desarrollo)',
-                                    ),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => HistorialPedidosScreen(),
                                   ),
                                 );
                               },
@@ -212,13 +212,14 @@ class _MyAppState extends State<MyApp> {
                         onTap: (index) => setState(() => _currentIndex = index),
                         items: const [
                           BottomNavigationBarItem(
+                            icon: Icon(Icons.home),
+                            label: 'Menu Principal',
+                          ),
+                          BottomNavigationBarItem(
                             icon: Icon(Icons.local_drink),
                             label: 'Bebidas',
                           ),
-                          BottomNavigationBarItem(
-                            icon: Icon(Icons.spa),
-                            label: 'Frutos Secos',
-                          ),
+
                           BottomNavigationBarItem(
                             icon: Icon(Icons.delivery_dining),
                             label: 'delivery',
@@ -234,13 +235,13 @@ class _MyAppState extends State<MyApp> {
   Widget _getBody() {
     switch (_currentIndex) {
       case 0:
-        return BebidasPage();
+        return MenuPrincipal();
       case 1:
-        return FrutosSecosPage();
+        return BebidasPage();
       case 2:
         return DeliveryPage();
       default:
-        return BebidasPage();
+        return MenuPrincipal();
     }
   }
 }

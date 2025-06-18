@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.flutter_application_1.app-mergeDebugResources-35:/values-bg/values-bg.xml",
+            "outputFile": "com.example.flutter_application_1.app-mergeDebugResources-33:/values-bg/values-bg.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ROJAS\\.gradle\\caches\\8.10.2\\transforms\\8cf478dec41eed746328fa8046755ba2\\transformed\\core-1.13.1\\res\\values-bg\\values-bg.xml",

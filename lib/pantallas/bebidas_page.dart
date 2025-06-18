@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'CarritoCompra.dart';
@@ -28,18 +29,6 @@ class _BebidasPageState extends State<BebidasPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${producto['nombre']} agregado al carrito')),
     );
-  }
-
-  void _eliminarDelCarrito(String codigo) {
-    setState(() {
-      if (_carrito.containsKey(codigo)) {
-        if (_carrito[codigo]!['cantidad'] > 1) {
-          _carrito[codigo]!['cantidad'] -= 1;
-        } else {
-          _carrito.remove(codigo);
-        }
-      }
-    });
   }
 
   @override
@@ -75,12 +64,18 @@ class _BebidasPageState extends State<BebidasPage> {
                 MaterialPageRoute(
                   builder:
                       (context) => CarritoCompraPage(
-                        userId: 'uid', // <-- Reemplaza por el userId real
+                        userId:
+                            '', // TODO: Reemplaza con el userId real del usuario logueado
+                        nombreUsuario:
+                            '', // TODO: Reemplaza con el nombre real del usuario logueado
+                        apellidosUsuario:
+                            '', // TODO: Reemplaza con los apellidos reales del usuario logueado
+                        correoUsuario:
+                            '', // TODO: Reemplaza con el correo real del usuario logueado
                         productosCarrito:
                             _carrito.values
                                 .map((e) => Map<String, dynamic>.from(e))
                                 .toList(),
-                        // Quita onEliminar aquí
                       ),
                 ),
               );
@@ -393,161 +388,5 @@ String convertirEnlaceDriveADirecto(String enlaceDrive) {
     return 'https://drive.google.com/uc?export=view&id=$id';
   } else {
     return enlaceDrive;
-  }
-}
-
-// Nueva pantalla de carrito de compras
-class CarritoCompraPage extends StatelessWidget {
-  final String userId;
-  final List<Map<String, dynamic>> productosCarrito;
-
-  const CarritoCompraPage({
-    Key? key,
-    required this.userId,
-    required this.productosCarrito,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    double total = productosCarrito.fold(
-      0.0,
-      (sum, producto) =>
-          sum +
-          ((producto['precio'] as num? ?? 0) *
-              (producto['cantidad'] as int? ?? 1)),
-    );
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Carrito de Compras')),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: productosCarrito.length,
-              itemBuilder: (context, index) {
-                final producto = productosCarrito[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    leading:
-                        (producto['imagen'] != null &&
-                                (producto['imagen'] as String).isNotEmpty)
-                            ? CircleAvatar(
-                              radius: 30,
-                              backgroundImage: NetworkImage(
-                                convertirEnlaceDriveADirecto(
-                                  producto['imagen'] as String,
-                                ),
-                              ),
-                              backgroundColor: Colors.grey[200],
-                              onBackgroundImageError: (_, __) {},
-                            )
-                            : const CircleAvatar(
-                              radius: 30,
-                              child: Icon(
-                                Icons.local_drink,
-                                color: Colors.white,
-                              ),
-                              backgroundColor: Colors.teal,
-                            ),
-                    title: Text(
-                      producto['nombre'] ?? '',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'S/ ${producto['precio']?.toStringAsFixed(2) ?? '0.00'}',
-                          style: const TextStyle(
-                            color: Colors.indigo,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Cantidad: ${producto['cantidad'] ?? 1}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Puedes dejar el botón de eliminar deshabilitado o quitarlo
-                    // trailing: IconButton(
-                    //   icon: const Icon(Icons.delete),
-                    //   color: Colors.red,
-                    //   onPressed: null,
-                    // ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Total',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'S/ ${total.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.indigo,
-                      ),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Aquí puedes agregar la lógica para registrar la compra
-                  },
-                  child: const Text('Proceder a Comprar'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

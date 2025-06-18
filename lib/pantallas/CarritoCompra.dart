@@ -3,17 +3,32 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CarritoCompraPage extends StatefulWidget {
   final String userId;
-  final List<Map<String, dynamic>>
-  productosCarrito; // [{nombre, precio, cantidad, ...}]
+  final String nombreUsuario;
+  final String apellidosUsuario;
+  final String correoUsuario;
+  final List<Map<String, dynamic>> productosCarrito;
 
   const CarritoCompraPage({
     Key? key,
     required this.userId,
+    required this.nombreUsuario,
+    required this.apellidosUsuario,
+    required this.correoUsuario,
     required this.productosCarrito,
   }) : super(key: key);
 
   @override
   State<CarritoCompraPage> createState() => _CarritoCompraPageState();
+}
+
+String convertirEnlaceDriveADirecto(String url) {
+  final regExp = RegExp(r'drive\.google\.com\/file\/d\/([^\/]+)');
+  final match = regExp.firstMatch(url);
+  if (match != null && match.groupCount >= 1) {
+    final id = match.group(1);
+    return 'https://drive.google.com/uc?export=view&id=$id';
+  }
+  return url;
 }
 
 class _CarritoCompraPageState extends State<CarritoCompraPage> {
@@ -29,11 +44,14 @@ class _CarritoCompraPageState extends State<CarritoCompraPage> {
 
     final venta = {
       'usuarioId': widget.userId,
+      'nombreUsuario': widget.nombreUsuario,
+      'apellidosUsuario': widget.apellidosUsuario,
+      'correoUsuario': widget.correoUsuario,
       'productos': widget.productosCarrito,
       'total': _total,
       'metodoPago': _metodoPago,
       'fecha': Timestamp.now(),
-      'estado': 'pendiente', // o 'pagado', según tu lógica
+      'estado': 'pendiente',
     };
 
     await FirebaseFirestore.instance.collection('VENTAS').add(venta);
@@ -42,7 +60,7 @@ class _CarritoCompraPageState extends State<CarritoCompraPage> {
       const SnackBar(content: Text('¡Compra registrada exitosamente!')),
     );
 
-    Navigator.of(context).pop(); // Regresa a la pantalla anterior
+    Navigator.of(context).pop();
   }
 
   @override
@@ -61,22 +79,62 @@ class _CarritoCompraPageState extends State<CarritoCompraPage> {
                 itemCount: widget.productosCarrito.length,
                 itemBuilder: (context, index) {
                   final producto = widget.productosCarrito[index];
-                  return ListTile(
-                    leading:
-                        producto['imagen'] != null &&
-                                (producto['imagen'] as String).isNotEmpty
-                            ? CircleAvatar(
-                              backgroundImage: NetworkImage(producto['imagen']),
-                              radius: 24,
-                              backgroundColor: Colors.grey[200],
-                            )
-                            : const CircleAvatar(
-                              child: Icon(Icons.local_drink),
-                              backgroundColor: Colors.grey,
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          producto['imagen'] != null &&
+                                  (producto['imagen'] as String).isNotEmpty
+                              ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  convertirEnlaceDriveADirecto(
+                                    producto['imagen'],
+                                  ),
+                                  width: 70,
+                                  height: 70,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                          const Icon(
+                                            Icons.broken_image,
+                                            size: 70,
+                                          ),
+                                ),
+                              )
+                              : Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.local_drink, size: 40),
+                              ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  producto['nombre'],
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text('Cantidad: ${producto['cantidad']}'),
+                                const SizedBox(height: 4),
+                                Text('S/ ${producto['precio']}'),
+                              ],
                             ),
-                    title: Text(producto['nombre']),
-                    subtitle: Text('Cantidad: ${producto['cantidad']}'),
-                    trailing: Text('S/ ${producto['precio']}'),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 },
               ),

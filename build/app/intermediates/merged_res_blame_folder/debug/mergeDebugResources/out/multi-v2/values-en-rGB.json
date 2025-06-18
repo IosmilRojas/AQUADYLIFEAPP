@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.flutter_application_1.app-mergeDebugResources-35:/values-en-rGB/values-en-rGB.xml",
+            "outputFile": "com.example.flutter_application_1.app-mergeDebugResources-33:/values-en-rGB/values-en-rGB.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ROJAS\\.gradle\\caches\\8.10.2\\transforms\\c9da39af860cbc6bfc2bc363bc8cb6b5\\transformed\\jetified-credentials-1.2.0-rc01\\res\\values-en-rGB\\values-en-rGB.xml",
