@@ -1,0 +1,2 @@
+D:/aquadylife/aquadylife/android/app/.cxx/RelWithDebInfo/n3n3s2n2/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/aquadylife/aquadylife/android/app/.cxx/RelWithDebInfo/n3n3s2n2/armeabi-v7a/CMakeFiles/rebuild_cache.dir

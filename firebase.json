@@ -1,0 +1,39 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "aquadylife-2c254",
+          "appId": "1:743170610984:android:8c04833297438fd3f7621d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "aquadylife-2c254",
+          "configurations": {
+            "android": "1:743170610984:android:8c04833297438fd3f7621d",
+            "ios": "1:743170610984:ios:7d735825dcc1659bf7621d",
+            "macos": "1:743170610984:ios:7d735825dcc1659bf7621d",
+            "web": "1:743170610984:web:37340dba98289407f7621d",
+            "windows": "1:743170610984:web:a53c161c1bdb5d5ef7621d"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

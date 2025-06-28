@@ -1,0 +1,2 @@
+D:/aquadylife/aquadylife/android/app/.cxx/Debug/4y406s4r/x86/CMakeFiles/edit_cache.dir
+D:/aquadylife/aquadylife/android/app/.cxx/Debug/4y406s4r/x86/CMakeFiles/rebuild_cache.dir
